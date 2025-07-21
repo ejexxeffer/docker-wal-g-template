@@ -1,0 +1,8 @@
+# Docker setters environment variables
+
+# DB setting
+DB_PORT=database_port_that_open_external_access
+DB_USER=database_user_name
+DB_PASSWORD=database_password
+DB_NAME=database_name
+DB_PATH=here_is_path_to_data_of_posgres
