@@ -1,0 +1,76 @@
+# version: "3.8"
+
+services:
+  # app:
+  #   image: your_app_image
+  #   container_name: app
+  #   environment:
+  #     DB_HOST: postgres
+  #     DB_PORT: 5432
+  #     DB_USER: myuser
+  #     DB_PASSWORD: mypassword
+  #     DB_NAME: mydb
+  #   depends_on:
+  #     - db
+  #   networks:
+  #     - xefferia
+  db:
+    build: ./docker/postgres
+    container_name: ${COMPOSE_PROJECT_NAME}_postgres
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      PGDATA: "${DB_PATH}"
+      # PGBACKREST_CONFIG: /etc/pgbackrest.conf
+      # PGBACKREST_PG1_PATH: /var/lib/postgresql/data
+      # PGBACKREST_REPO1_PATH: /backups
+      # PGBACKREST_STANZA: main
+    volumes:
+      # - ./postgres/postgresql.conf:/etc/postgresql.conf
+      # - ./postgres/pgbackrest.conf:/etc/pgbackrest.conf
+      - data:/var/lib/postgresql/data
+      - backup:/backups
+      - ./${DB_VOLUME_PATH}/data:/var/lib/postgresql
+      - ./${DB_VOLUME_PATH}/dumps:/tmp/dumps
+    ports:
+      - "${DB_PORT}:5432"
+    healthcheck:
+      # test:
+      #   [
+      #     "CMD-SHELL",
+      #     "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB} -h db",
+      #   ]
+      test: "pg_isready -q -h db"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: always
+    networks:
+      - xefferia
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 1024M
+  s3:
+    image: minio/minio
+    container_name: ${COMPOSE_PROJECT_NAME}_s3
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./${S3_VOLUME_PATH}:/data
+    environment:
+      MINIO_ROOT_USER: ${S3_USER}
+      MINIO_ROOT_PASSWORD: ${S3_PASSWORD}
+    command: server /data --console-address :9001
+    networks:
+      - xefferia
+volumes:
+  data:
+  backup:
+networks:
+  xefferia:
+    external: true

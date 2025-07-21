@@ -1,0 +1,20 @@
+{
+  "WALG_S3_PREFIX": "s3://xefferia/",
+  "AWS_ENDPOINT": "http://172.18.0.2:9000",
+  "AWS_S3_FORCE_PATH_STYLE": "true",
+  "AWS_REGION": "us-east-1",
+  "AWS_ACCESS_KEY_ID": "ennekennek",
+  "AWS_SECRET_ACCESS_KEY": "123412341234",
+  "WALG_COMPRESSION_METHOD": "brotli",
+  "WALG_DELTA_MAX_STEPS": "5",
+  "PGUSER":"postgres",
+  "PGPASSWORD":"1234",
+  "PGDATABASE":"xefferia",
+  "PGDATA": "",
+  "PGHOST": "/var/run/postgresql/",
+  "WALG_UPLOAD_QUEUE":"1",
+  "WALG_UPLOAD_CONCURRENCY":"1",
+  "WALG_TAR_SIZE_THRESHOLD":"536870912",
+  "WALG_LOG_LEVEL": "DEVEL",
+  "S3_LOG_LEVEL": "DEVEL"
+}
