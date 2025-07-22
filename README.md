@@ -79,10 +79,10 @@ A production-ready template for PostgreSQL with automated WAL-G backups to MinIO
 │ │ │ └── data
 │ │ ├── Dockerfile
 │ │ ├── dumps # SQL dump files (\*.dump)
-│ │ │ └── <your_project_name>\_1.dump
+│ │ │ └── your_project_name\_1.dump
 │ │ ├── init.sql # init sql for statring db, you can change it
 │ │ └── postgresql.conf # pg config
-| ├── .walg.json # Auto-generated WAL-G config (not tracked)
+│ ├── .walg.json # Auto-generated WAL-G config (not tracked)
 │ └── s3 # Mounted minio s3 directory
 ├── docker-compose.yml # Docker services definition
 └── makefile # Make commands
