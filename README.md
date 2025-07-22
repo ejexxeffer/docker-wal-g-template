@@ -1,109 +1,150 @@
-# xefferia_docker_build
+# 🐘 PostgreSQL + MinIO + Wal-g Stack
 
-docker-compose up запуск контейнера
-docker-compose up -d запуск контейнера в виде демона
-docker network create xefferia создание внутренней сети контейнера
-sudo bash backup.sh - создаёт dump в /dumps/ использует SUDO
-sudo bash restore.sh - восстанавливает базу данных из дампа в /dumps/ использует SUDO
+![Docker](https://img.shields.io/badge/Docker-3.8-blue)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-blue)
+![MinIO](https://img.shields.io/badge/MinIO-Latest-green)
 
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.com/xefferia/xefferia_docker_build.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://gitlab.com/xefferia/xefferia_docker_build/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+A production-ready template for PostgreSQL with automated WAL-G backups to MinIO S3 storage.
 
 ---
 
-# Editing this README
+## Prerequisites
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+- Docker Engine 20.10+
+- Docker Compose 2.12+
+- 2GB+ free disk space
+- 1GB+ available RAM
+- Docker & Docker Compose
+- Bash
+- PostgreSQL
+- Properly configured `.env` file
 
-## Suggestions for a good README
+---
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+## ⚙️ Environment Variables (from `.env`)
 
-## Name
+| Variable               | Description                          |
+| ---------------------- | ------------------------------------ |
+| `COMPOSE_PROJECT_NAME` | Project prefix for Docker containers |
+| `DB_USER`              | PostgreSQL username                  |
+| `DB_PASSWORD`          | PostgreSQL password                  |
+| `DB_NAME`              | PostgreSQL database name             |
+| `DB_PORT`              | PostgreSQL external port             |
+| `DB_PATH`              | Path to PostgreSQL data directory    |
+| `PGDATA`               | PostgreSQL internal data path        |
+| `DB_VOLUME_PATH`       | Host path for DB data and dumps      |
+| `S3_USER`              | MinIO root user                      |
+| `S3_PASSWORD`          | MinIO root password                  |
+| `S3_PREFIX`            | WAL-G S3 prefix (bucket path)        |
+| `AWS_ENDPOINT`         | MinIO/S3-compatible endpoint URL     |
+| `WALG_DELTA_MAX_STEPS` | WAL-G delta config                   |
+| `WALG_CONFIG_PATH`     | Path in container for `.walg.json`   |
+| `NETWORK_NAME`         | Docker network to join               |
 
-Choose a self-explaining name for your project.
+---
 
-## Description
+## 🛠️ Makefile Commands
 
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+| Command                         | Description                                                                                                       |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `make`                          | Start default configuration containers with restore basic dump _(from docker/postgres/dumps)_ and configure wal-g |
+| `make up`                       | Start containers and wait for PostgreSQL to be ready without restore and                                          |
+| `make db-check`                 | Check PostgreSQL status via `pg_ctl status`                                                                       |
+| `make db-stop`                  | Stop PostgreSQL server inside container                                                                           |
+| `make db-start`                 | Start PostgreSQL server inside container                                                                          |
+| `make db-clean`                 | Delete all rows from `public.employees` table                                                                     |
+| `make db-stop-clean`            | Stop PostgreSQL and clean the entire data directory (⚠️ destructive)                                              |
+| `make restore-dump`             | Restore a selected `.dump` file from host into the database                                                       |
+| `make restore-latest-dump`      | Automatically restore the latest available `.dump`                                                                |
+| `make restore-build-dump`       | Start environment and restore predefined dump                                                                     |
+| `make backup-dump`              | Create a `.dump` file using `pg_dump`                                                                             |
+| `make backup-push`              | Use WAL-G to push full backup to S3                                                                               |
+| `make configure-walg-build`     | Generate `.walg.json` and copy it into container                                                                  |
+| `make configure-walg`           | Generate `.walg.json` and copy it into container without other commands                                           |
+| `make test-wal-g`               | Show WAL-G version and available backups                                                                          |
+| `make show-test-data`           | Show contents of `public.employees` table                                                                         |
+| `make clean`                    | Stop containers and remove volumes                                                                                |
+| `make clean-all`                | Full cleanup of Docker system (⚠️ removes images, volumes, cache)                                                 |
+| `make clean-cache`              | Remove dangling images and builder cache                                                                          |
+| `make clean-stopped-containers` | Remove stopped/created containers                                                                                 |
+| `make help`                     | Show available make commands (nicely formatted)                                                                   |
 
-## Badges
+## 📁 Project Structure
 
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+.
+├── docker
+│ ├── postgres
+│ │ ├── data/ # Mounted PostgreSQL data directory
+│ │ │ └── data
+│ │ ├── Dockerfile
+│ │ ├── dumps # SQL dump files (\*.dump)
+│ │ │ └── <your_project_name>\_1.dump
+│ │ ├── init.sql # init sql for statring db, you can change it
+│ │ └── postgresql.conf # pg config
+| ├── .walg.json # Auto-generated WAL-G config (not tracked)
+│ └── s3 # Mounted minio s3 directory
+├── docker-compose.yml # Docker services definition
+└── makefile # Make commands
 
-## Visuals
+---
 
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+## 🚀 Quick Start
 
-## Installation
+### 1. Clone this repo and enter it
 
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+```bash
+git clone https://github.com/ejexxeffer/docker-wal-g-template.git
+cd docker-wal-g-template
+```
 
-## Usage
+_or ssh if you prefer:_
 
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+```bash
+git clone git@github.com:ejexxeffer/docker-wal-g-template.git
+cd docker-wal-g-template
+```
 
-## Support
+### 2. (Optional)Copy and configure your .env or use recommend default settings
 
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+```bash
+cp .env.example .env
+nano .env
+```
 
-## Roadmap
+### 3. Build and start containers
 
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+```bash
+make
+```
 
-## Contributing
+### 4. (Optional)Check if it's alive
 
-State if you are open to contributions and what your requirements are for accepting them.
+```bash
+make db-check
+```
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+## ☁️ WAL-G Integration with MinIO
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+This stack comes with [WAL-G](https://github.com/wal-g/wal-g) fully pre-configured to work out-of-the-box with the MinIO S3-compatible storage bundled in the environment.
 
-## Authors and acknowledgment
+### ✅ What works
 
-Show your appreciation to those who have contributed to the project.
+- `make backup-push`: Creates a full PostgreSQL backup using WAL-G and uploads it to MinIO.
+- `make test-wal-g`: Lists available backups in the MinIO bucket.
+- Automatic generation and container injection of `.walg.json` configuration.
 
-## License
+MinIO credentials, S3 endpoint, and WAL-G settings are loaded from your `.env` and injected into the container at runtime.
 
-For open source projects, say how it is licensed.
+---
 
-## Project status
+### ⚠️ Important Limitation: WAL-G Restore (PITR) Requires New Container
 
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+WAL-G **cannot be used to restore backups** (e.g., for PITR or full volume restore) **into a running PostgreSQL container** — PostgreSQL must not be running during the restore process, and WAL-G expects a clean `PGDATA` directory.
+
+> This means: **you must create a fresh PostgreSQL container** (or stop and remove the old one) to perform a restoration using WAL-G.
+
+> WIP: restore backup and PITR to new container
+
+## 📖 License
+
+MIT — Feel free to use, modify, and share.

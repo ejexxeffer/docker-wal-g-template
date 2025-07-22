@@ -1,0 +1,5 @@
+./docker/postgres/dumps
+./docker/postgres/data
+./docker/postgres/.walg.json
+./vscode
+./docker/s3/*
