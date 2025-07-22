@@ -71,6 +71,7 @@ A production-ready template for PostgreSQL with automated WAL-G backups to MinIO
 
 ## 📁 Project Structure
 
+```bash
 .
 ├── docker
 │ ├── postgres
@@ -85,6 +86,7 @@ A production-ready template for PostgreSQL with automated WAL-G backups to MinIO
 │ └── s3 # Mounted minio s3 directory
 ├── docker-compose.yml # Docker services definition
 └── makefile # Make commands
+```
 
 ---
 
