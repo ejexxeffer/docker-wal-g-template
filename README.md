@@ -72,7 +72,6 @@ A production-ready template for PostgreSQL with automated WAL-G backups to MinIO
 ## 📁 Project Structure
 
 ```bash
-.
 ├── docker
 │ ├── postgres
 │ │ ├── data/ # Mounted PostgreSQL data directory
