@@ -1,7 +1,7 @@
 # 🐘 PostgreSQL + MinIO + Wal-g Stack
 
 ![Docker](https://img.shields.io/badge/Docker-3.8-blue)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-blue)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13+-blue)
 ![MinIO](https://img.shields.io/badge/MinIO-Latest-green)
 
 A production-ready template for PostgreSQL with automated WAL-G backups to MinIO S3 storage.
@@ -45,29 +45,29 @@ A production-ready template for PostgreSQL with automated WAL-G backups to MinIO
 
 ## 🛠️ Makefile Commands
 
-| Command                         | Description                                                                                                       |
-| ------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `make`                          | Start default configuration containers with restore basic dump _(from docker/postgres/dumps)_ and configure wal-g |
-| `make up`                       | Start containers and wait for PostgreSQL to be ready without restore and                                          |
-| `make db-check`                 | Check PostgreSQL status via `pg_ctl status`                                                                       |
-| `make db-stop`                  | Stop PostgreSQL server inside container                                                                           |
-| `make db-start`                 | Start PostgreSQL server inside container                                                                          |
-| `make db-clean`                 | Delete all rows from `public.employees` table                                                                     |
-| `make db-stop-clean`            | Stop PostgreSQL and clean the entire data directory (⚠️ destructive)                                              |
-| `make restore-dump`             | Restore a selected `.dump` file from host into the database                                                       |
-| `make restore-latest-dump`      | Automatically restore the latest available `.dump`                                                                |
-| `make restore-build-dump`       | Start environment and restore predefined dump                                                                     |
-| `make backup-dump`              | Create a `.dump` file using `pg_dump`                                                                             |
-| `make backup-push`              | Use WAL-G to push full backup to S3                                                                               |
-| `make configure-walg-build`     | Generate `.walg.json` and copy it into container                                                                  |
-| `make configure-walg`           | Generate `.walg.json` and copy it into container without other commands                                           |
-| `make test-wal-g`               | Show WAL-G version and available backups                                                                          |
-| `make show-test-data`           | Show contents of `public.employees` table                                                                         |
-| `make clean`                    | Stop containers and remove volumes                                                                                |
-| `make clean-all`                | Full cleanup of Docker system (⚠️ removes images, volumes, cache)                                                 |
-| `make clean-cache`              | Remove dangling images and builder cache                                                                          |
-| `make clean-stopped-containers` | Remove stopped/created containers                                                                                 |
-| `make help`                     | Show available make commands (nicely formatted)                                                                   |
+| Command                         | Description                                                                                                        |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `make`                          | Start default configuration containers with restore basic dump _(from docker/postgres/dumps)_ and configured wal-g |
+| `make up`                       | Start containers and wait for PostgreSQL to be ready without restore and wal-g configure                           |
+| `make db-check`                 | Check PostgreSQL status via `pg_ctl status`                                                                        |
+| `make db-stop`                  | Stop PostgreSQL server inside container                                                                            |
+| `make db-start`                 | Start PostgreSQL server inside container                                                                           |
+| `make db-clean`                 | Delete all rows from `public.employees` table                                                                      |
+| `make db-stop-clean`            | Stop PostgreSQL and clean the entire data directory (⚠️ destructive)                                               |
+| `make restore-dump`             | Restore a selected `.dump` file from host into the database                                                        |
+| `make restore-latest-dump`      | Automatically restore the latest available `.dump`                                                                 |
+| `make restore-build-dump`       | Start environment and restore predefined dump                                                                      |
+| `make backup-dump`              | Create a `.dump` file using `pg_dump`                                                                              |
+| `make backup-push`              | Use WAL-G to push full backup to S3                                                                                |
+| `make configure-walg-build`     | Generate `.walg.json` and copy it into container                                                                   |
+| `make configure-walg`           | Generate `.walg.json` and copy it into container without other commands                                            |
+| `make test-wal-g`               | Show WAL-G version and available backups                                                                           |
+| `make show-test-data`           | Show contents of `public.employees` table                                                                          |
+| `make clean`                    | Stop containers and remove volumes                                                                                 |
+| `make clean-all`                | Full cleanup of Docker system (⚠️ removes images, volumes, cache)                                                  |
+| `make clean-cache`              | Remove dangling images and builder cache                                                                           |
+| `make clean-stopped-containers` | Remove stopped/created containers                                                                                  |
+| `make help`                     | Show available make commands (nicely formatted)                                                                    |
 
 ## 📁 Project Structure
 
